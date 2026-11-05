@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[보고용] 임직원 강원도 워크샵 최적 동선 및 세부 일정표 (8인 기준)</title>
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- Kakao Map SDK -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2e1a3add3f45920f671040a62041d38c"></script>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent-day1: #dc2626;
+            --accent-day2: #2563eb;
+            --accent-day3: #059669;
+            --kakao-yellow: #FEE500;
+            --kakao-brown: #3C1E1E;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 24px 16px 60px;
+        }
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+        /* Header */
+        .report-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: #ffffff;
+            padding: 34px 32px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+        }
+        .report-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.16);
+            color: #e0f2fe;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+            letter-spacing: 0.02em;
+        }
+        .report-header h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        .report-meta {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        /* Map Status Bar */
+        .map-control-bar {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            display: inline-block;
+        }
+
+        /* Executive Summary Box */
+        .exec-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 6px solid #f59e0b;
+            border-radius: 14px;
+            padding: 26px 28px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        .exec-box h2 {
+            font-size: 1.25rem;
+            color: #b45309;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .exec-lead {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            background: #fffbeb;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #fef3c7;
+        }
+        .exec-list {
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+        .exec-list li {
+            position: relative;
+            padding-left: 20px;
+            font-size: 0.96rem;
+            color: var(--text-sub);
+        }
+        .exec-list li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .exec-list strong {
+            color: var(--text-main);
+        }
+        .sub-list {
+            margin-top: 8px;
+            padding-left: 16px;
+            list-style: none;
+            display: grid;
+            gap: 6px;
+        }
+        .sub-list li::before {
+            content: "▸";
+            color: #64748b;
+        }
+
+        /* Day Section */
+        .day-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+        }
+        .day-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 16px;
+            margin-bottom: 22px;
+            border-bottom: 2px solid var(--border);
+        }
+        .day-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .day-badge {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+        }
+        .day-1 .day-badge { background: var(--accent-day1); }
+        .day-2 .day-badge { background: var(--accent-day2); }
+        .day-3 .day-badge { background: var(--accent-day3); }
+        .day-header h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        .day-route-summary {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            background: #f1f5f9;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        /* Layout Grid: Timeline + Map */
+        .day-grid {
+            display: grid;
+            grid-template-columns: 0.95fr 1.15fr;
+            gap: 24px;
+            margin-bottom: 24px;
+            align-items: start;
+        }
+        @media (max-width: 880px) {
+            .day-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Timeline */
+        .timeline {
+            list-style: none;
+            position: relative;
+            padding-left: 16px;
+            border-left: 2px dashed #cbd5e1;
+            margin-left: 8px;
+        }
+        .timeline li {
+            position: relative;
+            margin-bottom: 14px;
+            padding-left: 14px;
+            font-size: 0.96rem;
+        }
+        .timeline li:last-child {
+            margin-bottom: 0;
+        }
+        .timeline li::before {
+            content: "";
+            position: absolute;
+            left: -23px;
+            top: 7px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #64748b;
+        }
+        .day-1 .timeline li::before { border-color: var(--accent-day1); }
+        .day-2 .timeline li::before { border-color: var(--accent-day2); }
+        .day-3 .timeline li::before { border-color: var(--accent-day3); }
+        .time-label {
+            display: inline-block;
+            font-weight: 800;
+            color: var(--text-main);
+            min-width: 52px;
+            margin-right: 6px;
+        }
+        .spot-highlight {
+            font-weight: 700;
+            color: #1e40af;
+            background: #eff6ff;
+            padding: 2px 6px;
+            border-radius: 5px;
+        }
+
+        /* Map Box */
+        .map-wrapper {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+        .map-topbar {
+            padding: 10px 14px;
+            background: #f1f5f9;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .map-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: all 0.15s;
+        }
+        .map-btn:hover {
+            background: #e2e8f0;
+        }
+        .day-map {
+            width: 100%;
+            height: 370px;
+            z-index: 1;
+        }
+
+        /* Place Cards */
+        .place-cards-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .places-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 16px;
+        }
+        .place-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .place-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+            border-color: #94a3b8;
+        }
+        .place-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+        .place-name {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .day-1 .step-num { background: var(--accent-day1); }
+        .day-2 .step-num { background: var(--accent-day2); }
+        .day-3 .step-num { background: var(--accent-day3); }
+        .place-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #334155;
+            white-space: nowrap;
+        }
+        .tag-food { background: #fee2e2; color: #991b1b; }
+        .tag-cafe { background: #fef3c7; color: #92400e; }
+        .tag-tour { background: #dcfce7; color: #166534; }
+
+        .place-address {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .place-desc {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+        .place-meta {
+            list-style: none;
+            font-size: 0.84rem;
+            color: var(--text-sub);
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 8px;
+            margin-bottom: 12px;
+            display: grid;
+            gap: 4px;
+        }
+        .place-meta strong {
+            color: var(--text-main);
+        }
+
+        /* Kakao Action Button */
+        .map-action-row {
+            display: flex;
+            gap: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .ext-map-btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            background-color: var(--kakao-yellow);
+            color: var(--kakao-brown);
+        }
+        .ext-map-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .badge-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 900;
+            background: var(--kakao-brown);
+            color: var(--kakao-yellow);
+        }
+
+        /* Custom Marker Pin (Kakao Style) */
+        .custom-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+        }
+        .custom-pin span {
+            transform: rotate(45deg);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 13px;
+            font-family: 'Pretendard', sans-serif;
+        }
+        .pin-label-tooltip {
+            font-family: 'Pretendard', sans-serif;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1.5px solid #0f172a;
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            white-space: nowrap;
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .day-section { break-inside: avoid; box-shadow: none; }
+            .map-btn, .map-control-bar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header class="report-header">
+        <div class="report-badge">대표님 보고용 · 카카오맵 공식 연동 버전</div>
+        <h1>임직원 강원도 워크샵 최적 동선 및 세부 일정표</h1>
+        <div class="report-meta">
+            <span>👥 <strong>인원:</strong> 임직원 8명</span>
+            <span>🗓️ <strong>일정:</strong> 24일(화) 저녁 ~ 26일(목) 밤 11시 전 여수 도착</span>
+            <span>📍 <strong>방문 권역:</strong> 양양 · 속초 · 고성 · 강릉 · 원주</span>
+        </div>
+    </header>
+
+    <!-- Map Status Bar -->
+    <div class="map-control-bar">
+        <span class="status-dot"></span>
+        <span><strong>카카오맵 공식 엔진 적용 완료:</strong> 등록하신 도메인(<code>https://jhjphe.github.io/workshop/</code>)에 연동된 카카오맵 API 키가 설정되어 있습니다.</span>
+    </div>
+
+    <!-- 핵심 결론 및 동선 조정 건의사항 -->
+    <section class="exec-box">
+        <h2>💡 핵심 결론 및 동선 조정 건의사항 (대표님 보고 핵심 포인트)</h2>
+        <div class="exec-lead">
+            제시해주신 8개 장소 중 <strong>3번 '뼈대있는짬뽕(원주)'을 25일 점심에서 26일 오후(여수 복귀 길)로 변경</strong>하는 것이 이번 워크샵 동선의 가장 중요한 핵심입니다.
+        </div>
+        <ul class="exec-list">
+            <li>
+                <strong>문제점:</strong> 25일 아침(속초)과 25일 저녁(속초) 사이에 원주(내륙)를 다녀오면 왕복 4시간 이상을 도로에서 허비하게 되며, 그사이 강릉과 고성 일정을 소화하는 것이 물리적으로 불가능합니다.
+            </li>
+            <li>
+                <strong>해결책:</strong> <strong>24일(양양/속초) → 25일(속초/고성 북부 집중) → 26일(강릉 중부 → 원주 내륙 경유 → 여수 복귀)</strong> 순서로 위에서 아래로 내려오는 '남하(南下) 동선'을 짜면 이동 시간을 최소 3시간 이상 절약하고, 인기 베이커리와 카페까지 여유롭게 방문할 수 있습니다.
+            </li>
+            <li>
+                <strong>휴무일 체크 (11월 24일~26일 화~목 기준):</strong>
+                <ul class="sub-list">
+                    <li>고성 산북막국수: <strong>화요일(24일) 정기휴무</strong> → 25일(수) 점심 배치 완료</li>
+                    <li>강릉 감자유원지: <strong>수요일(25일) 정기휴무</strong> → 26일(목) 오전/낮 배치 완료</li>
+                    <li>원주 뼈대있는짬뽕: <strong>월요일 정기휴무</strong> → 26일(목) 이른 저녁 배치 완료</li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <!-- 1일차 -->
+    <section class="day-section day-1">
+        <div class="day-header">
+            <div class="day-title-wrap">
+                <span class="day-badge">1일차 · 24일(화)</span>
+                <h3>여수 출발 및 양양 도착 · 속초 숙소 체크인</h3>
+            </div>
+            <div class="day-route-summary">동선: 양양 산촌생등심 → 속초 숙소 권역</div>
+        </div>
+
+        <div class="day-grid">
+            <ul class="timeline">
+                <li><span class="time-label">12:30</span> 여수 출발 (양양까지 약 5시간~5시간 30분 소요, 휴게소 정차 포함)</li>
+                <li><span class="time-label">18:30</span> 양양 도착 및 저녁 식사 (<span class="spot-highlight">산촌생등심</span>)</li>
+                <li><span class="time-label">20:30</span> 속초 숙소 이동 (약 15~20분 소요) 및 체크인 후 휴식</li>
+            </ul>
+
+            <div class="map-wrapper">
+                <div class="map-topbar">
+                    <span>🗺️ 1일차 카카오맵 (양양 → 속초 이동 동선)</span>
+                    <button class="map-btn" onclick="resetDayMap(0)">전체 동선 보기</button>
+                </div>
+                <div id="map-day1" class="day-map"></div>
+            </div>
+        </div>
+
+        <div class="place-cards-title">
+            <span>📌 1일차 주요 장소 상세 (카드 클릭 시 지도 확대 / 버튼 클릭 시 카카오맵 길찾기 실행)</span>
+        </div>
+        <div class="places-grid">
+            <div class="place-card" onclick="focusDayMarker(0, 0)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">1</span> 산촌생등심</div>
+                        <span class="place-tag tag-food">저녁 식사</span>
+                    </div>
+                    <div class="place-address">📍 강원 양양군 강현면 안골로 54 1층</div>
+                    <p class="place-desc">장거리 이동 후 첫 일정으로 든든하게 한우 등심을 즐기기에 적합한 양양의 대표 고깃집입니다. 방문객들은 고기의 질이 뛰어나고 밑반찬이 깔끔해 모임 장소로 좋다고 평가합니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 신선한 생등심과 특수부위 제공, 8인 단체 식사에 무리 없는 매장 공간</li>
+                        <li><strong>영업시간:</strong> 11:00 ~ 21:00 (매주 수요일 휴무 / 24일 화요일 정상 영업)</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/산촌생등심,38.1472,128.6042" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2일차 -->
+    <section class="day-section day-2">
+        <div class="day-header">
+            <div class="day-title-wrap">
+                <span class="day-badge">2일차 · 25일(수)</span>
+                <h3>속초 & 고성 북부권 집중 투어</h3>
+            </div>
+            <div class="day-route-summary">동선: 춘선네 → 바다정원 → 산북막국수 → 봉브레드 → 보사노바 → 아하거기포차</div>
+        </div>
+
+        <div class="day-grid">
+            <ul class="timeline">
+                <li><span class="time-label">08:30</span> 아침 식사 (<span class="spot-highlight">춘선네</span>)</li>
+                <li><span class="time-label">10:00</span> 오전 바다 뷰 대형 베이커리 카페 티타임 (<span class="spot-highlight">바다정원</span>)</li>
+                <li><span class="time-label">12:30</span> 고성 거진읍 이동(약 35분) 및 점심 식사 (<span class="spot-highlight">산북막국수</span> / 인근 산북소나무막국수)</li>
+                <li><span class="time-label">15:00</span> 속초 복귀 길 인기 빵집 포장 (<span class="spot-highlight">봉브레드</span>) 및 해변 로스터리 카페 (<span class="spot-highlight">보사노바 커피로스터스 속초점</span>) 워크샵 티타임</li>
+                <li><span class="time-label">18:30</span> 저녁 식사 및 단합 만찬 (<span class="spot-highlight">아하거기포차</span>)</li>
+            </ul>
+
+            <div class="map-wrapper">
+                <div class="map-topbar">
+                    <span>🗺️ 2일차 카카오맵 (속초 ↔ 고성 북부 집중 동선)</span>
+                    <div style="display:flex; gap:6px;">
+                        <button class="map-btn" onclick="zoomDaySubRegion(1, [0, 1, 3, 4, 5])">속초권 확대</button>
+                        <button class="map-btn" onclick="zoomDaySubRegion(1, [2])">고성(거진) 확대</button>
+                        <button class="map-btn" onclick="resetDayMap(1)">전체 보기</button>
+                    </div>
+                </div>
+                <div id="map-day2" class="day-map"></div>
+            </div>
+        </div>
+
+        <div class="place-cards-title">
+            <span>📌 2일차 주요 장소 상세 (카드 클릭 시 지도 확대 / 버튼 클릭 시 카카오맵 길찾기 실행)</span>
+        </div>
+        <div class="places-grid">
+            <!-- 1. 춘선네 -->
+            <div class="place-card" onclick="focusDayMarker(1, 0)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">1</span> 춘선네</div>
+                        <span class="place-tag tag-food">아침 식사</span>
+                    </div>
+                    <div class="place-address">📍 강원 속초시 청초호반로 230</div>
+                    <p class="place-desc">청초호 인근에 위치해 속초의 명물인 섭국(자연산 홍합국)으로 아침 해장과 식사를 동시에 해결할 수 있는 곳입니다. 국물이 진하고 시원해 아침 식사 코스로 인기가 높습니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 오전 8시 오픈으로 아침 일정에 최적화, 넓고 쾌적한 매장</li>
+                        <li><strong>대표 메뉴:</strong> 섭국, 성게알비빔밥, 가자미조림</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/춘선네,38.2014,128.5776" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. 바다정원 -->
+            <div class="place-card" onclick="focusDayMarker(1, 1)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">2</span> 바다정원</div>
+                        <span class="place-tag tag-cafe">베이커리 카페</span>
+                    </div>
+                    <div class="place-address">📍 강원 고성군 토성면 버리깨길 23</div>
+                    <p class="place-desc">속초에서 고성으로 올라가는 길목 해변 바로 앞에 위치한 초대형 오션뷰 베이커리 카페입니다. 정원과 야외 테라스가 넓어 8명의 직원이 함께 바다를 보며 담소를 나누기에 최적의 장소입니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 압도적인 동해 바다 전망, 다양한 수제 베이커리 라인업, 대형 주차장 완비</li>
+                        <li><strong>동선 이점:</strong> 속초(춘선네)에서 고성(산북막국수)으로 북상하는 해안도로 동선상에 정확히 위치</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/바다정원,38.2485,128.5621" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. 산북막국수 -->
+            <div class="place-card" onclick="focusDayMarker(1, 2)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">3</span> 산북막국수</div>
+                        <span class="place-tag tag-food">점심 식사</span>
+                    </div>
+                    <div class="place-address">📍 강원 고성군 거진읍 산북길 16</div>
+                    <p class="place-desc">고성 거진읍에 위치한 노포 막국수 전문점으로, 투박하면서도 구수한 메밀면과 시원한 동치미 육수가 일품이라는 평을 받습니다. 화요일이 휴무이므로 수요일 점심에 방문하는 것이 정확히 맞아떨어집니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 고성 현지인과 여행객 모두에게 사랑받는 동치미 막국수와 편육</li>
+                        <li><strong>참고사항:</strong> 바로 옆 골목에 위치한 <strong>산북소나무막국수</strong> 역시 동치미 막국수와 수육으로 유명한 인접 노포이므로, 당일 웨이팅이나 좌석 상황에 따라 유연하게 이용하기 좋습니다.</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/산북막국수,38.4418,128.4426" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. 봉브레드 -->
+            <div class="place-card" onclick="focusDayMarker(1, 3)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">4</span> 봉브레드</div>
+                        <span class="place-tag tag-cafe">인기 빵집 포장</span>
+                    </div>
+                    <div class="place-address">📍 강원 속초시 동해대로 4344-1</div>
+                    <p class="place-desc">고성에서 속초 시내로 내려오는 길목에 있는 속초 최고 인기 베이커리입니다. 마늘바게트와 연인의 빵이 시그니처 메뉴이며, 매장 취식보다는 간식 및 가족 선물용으로 포장해 가는 코스로 추천합니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 촉촉하고 진한 마늘 소스의 마늘바게트, 회전율이 빠르나 인기 메뉴 조기 품절 주의</li>
+                        <li><strong>영업시간:</strong> 08:30 ~ 20:00 (목요일 휴무 / 25일 수요일 정상 영업)</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/봉브레드,38.2158,128.5752" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. 보사노바 커피로스터스 속초점 -->
+            <div class="place-card" onclick="focusDayMarker(1, 4)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">5</span> 보사노바 커피로스터스 속초점</div>
+                        <span class="place-tag tag-cafe">로스터리 카페</span>
+                    </div>
+                    <div class="place-address">📍 강원 속초시 해오름로 161</div>
+                    <p class="place-desc">속초해수욕장 바로 앞에 자리한 스페셜티 로스터리 카페입니다. 루프탑과 통창 좌석이 잘 갖춰져 있어 저녁 식사 전 직원들과 커피를 마시며 해변 산책을 즐기기에 좋습니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 직접 로스팅한 원두 선택 가능, 속초해수욕장 도보 1분 거리</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/보사노바 커피로스터스 속초점,38.1912,128.6018" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. 아하거기포차 -->
+            <div class="place-card" onclick="focusDayMarker(1, 5)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">6</span> 아하거기포차</div>
+                        <span class="place-tag tag-food">저녁 만찬</span>
+                    </div>
+                    <div class="place-address">📍 강원 속초시 동해대로 4162-9</div>
+                    <p class="place-desc">속초 동해대로 인근에 위치한 포차 스타일의 주점으로, 2일차 저녁 워크샵 만찬과 반주를 편안한 분위기에서 즐기기에 알맞은 장소입니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 신선한 해산물 및 포차 안주류, 직원 단합 회식에 어울리는 정겨운 분위기</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/아하거기포차,38.1982,128.5878" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3일차 -->
+    <section class="day-section day-3">
+        <div class="day-header">
+            <div class="day-title-wrap">
+                <span class="day-badge">3일차 · 26일(목)</span>
+                <h3>강릉 투어 → 원주 경유 → 여수 복귀</h3>
+            </div>
+            <div class="day-route-summary">동선: 테라로사 경포호수점 → 금학칼국수 · 강릉중앙시장 · 감자유원지 → 원주 베이커리궁 · 뼈대있는짬뽕</div>
+        </div>
+
+        <div class="day-grid">
+            <ul class="timeline">
+                <li><span class="time-label">09:00</span> 속초 출발 → 강릉 이동 (약 50분 소요)</li>
+                <li><span class="time-label">09:50</span> 강릉 경포호 인근 대형 커피숍 모닝커피 (<span class="spot-highlight">테라로사 경포호수점</span>)</li>
+                <li><span class="time-label">11:10</span> 강릉 시내 이동 및 점심 식사 (<span class="spot-highlight">금학칼국수</span>)</li>
+                <li><span class="time-label">12:10</span> 도보 이동 후 시장 투어 및 디저트/기념품 구매 (<span class="spot-highlight">강릉중앙시장</span>, <span class="spot-highlight">감자유원지</span>, 커피콩빵 등)</li>
+                <li><span class="time-label">14:00</span> 강릉 출발 → 원주 이동 (영동고속도로 약 1시간 20분 소요)</li>
+                <li><span class="time-label">15:20</span> 원주 도착 후 베이커리 카페 휴식 (<span class="spot-highlight">베이커리궁</span>)</li>
+                <li><span class="time-label">16:30</span> 이른 저녁 식사 (<span class="spot-highlight">뼈대있는짬뽕</span>)</li>
+                <li><span class="time-label">17:30</span> 원주 출발 → 여수 복귀 (약 3시간 40분~4시간 소요)</li>
+                <li><span class="time-label">21:30</span> 여수 도착 (목표 시간인 밤 11시보다 1시간 30분 여유 있게 도착)</li>
+            </ul>
+
+            <div class="map-wrapper">
+                <div class="map-topbar">
+                    <span>🗺️ 3일차 카카오맵 (강릉 · 원주 권역별 확대 지원)</span>
+                    <div style="display:flex; gap:6px;">
+                        <button class="map-btn" onclick="zoomDaySubRegion(2, [0, 1, 2, 3])">강릉 시내 확대</button>
+                        <button class="map-btn" onclick="zoomDaySubRegion(2, [4, 5])">원주 확대</button>
+                        <button class="map-btn" onclick="resetDayMap(2)">전체 보기</button>
+                    </div>
+                </div>
+                <div id="map-day3" class="day-map"></div>
+            </div>
+        </div>
+
+        <div class="place-cards-title">
+            <span>📌 3일차 주요 장소 상세 (카드 클릭 시 지도 확대 / 버튼 클릭 시 카카오맵 길찾기 실행)</span>
+        </div>
+        <div class="places-grid">
+            <!-- 1. 테라로사 경포호수점 -->
+            <div class="place-card" onclick="focusDayMarker(2, 0)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">1</span> 테라로사 경포호수점</div>
+                        <span class="place-tag tag-cafe">모닝 커피</span>
+                    </div>
+                    <div class="place-address">📍 강원 강릉시 난설헌로 145</div>
+                    <p class="place-desc">속초에서 강릉 시내로 진입하는 초입(경포호 인근)에 위치한 북카페 콘셉트의 스페셜티 커피 전문점입니다. 높은 층고와 감각적인 인테리어 덕분에 단체 방문객이 여유롭게 모닝커피를 즐기기에 좋습니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 강릉을 대표하는 커피 브랜드 테라로사의 드립 커피와 베이커리, 넉넉한 좌석</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/테라로사 경포호수점,37.7915,128.9082" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. 금학칼국수 -->
+            <div class="place-card" onclick="focusDayMarker(2, 1)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">2</span> 금학칼국수</div>
+                        <span class="place-tag tag-food">점심 식사</span>
+                    </div>
+                    <div class="place-address">📍 강원 강릉시 대학길 12-6</div>
+                    <p class="place-desc">강릉 중앙시장 인근 골목에 위치한 유서 깊은 장칼국수 맛집입니다. 걸쭉하고 칼칼한 고추장 베이스 국물이 특징이며, 전날 저녁 회식 후 해장 겸 점심 식사로 안성맞춤입니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 강릉식 정통 장칼국수와 콩나물밥, 중앙시장과 도보 2~3분 거리로 동선 완벽 연계</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/금학칼국수,37.7538,128.8975" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. 강릉중앙시장 -->
+            <div class="place-card" onclick="focusDayMarker(2, 2)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">3</span> 강릉중앙시장</div>
+                        <span class="place-tag tag-tour">시장 투어 · 기념품</span>
+                    </div>
+                    <div class="place-address">📍 강원 강릉시 금성로 21</div>
+                    <p class="place-desc">금학칼국수와 감자유원지 바로 옆에 위치한 영동 지방 최대 전통시장입니다. 식사 후 소화도 시킬 겸 시장 골목을 둘러보며 닭강정, 어묵고로케 등 주전부리를 사기에 좋습니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>베이커리/기념품 포인트:</strong> 시장 내부와 인근에 있는 강릉당 커피콩빵 중앙시장점, 강릉커피콩빵 중앙시장점, 강릉당 커피콩빵 본점 등에서 강릉 명물 커피콩빵을 사무실 간식이나 선물용으로 구매하기 편리합니다.</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/강릉중앙시장,37.7534,128.8986" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. 감자유원지 -->
+            <div class="place-card" onclick="focusDayMarker(2, 3)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">4</span> 감자유원지</div>
+                        <span class="place-tag tag-cafe">디저트 · 복합공간</span>
+                    </div>
+                    <div class="place-address">📍 강원 강릉시 경강로2115번길 7 1,2,3층</div>
+                    <p class="place-desc">금학칼국수 및 중앙시장에서 도보 2분 거리에 있는 감자 테마 복합문화공간 겸 디저트 카페입니다. 수요일이 정기휴무이므로 26일(목) 낮에 방문해야 정상 이용이 가능하며, 아기자기한 굿즈와 감자 디저트를 즐길 수 있습니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 포슬포슬한 감자 모양 빵과 옹심이 디저트, 브랜딩과 공간 기획이 돋보이는 1~3층 매장</li>
+                        <li><strong>영업시간:</strong> 11:00 ~ 20:00 (브레이크타임 15:30~17:00 / 수요일 휴무)</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/감자유원지,37.7544,128.8992" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 5. 베이커리궁 -->
+            <div class="place-card" onclick="focusDayMarker(2, 4)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">5</span> 베이커리궁</div>
+                        <span class="place-tag tag-cafe">베이커리 카페</span>
+                    </div>
+                    <div class="place-address">📍 강원 원주시 행구로 307</div>
+                    <p class="place-desc">원주 행구동 길카페 거리에 위치한 대형 베이커리 카페로, '뼈대있는짬뽕'에서 차량으로 약 5분 거리에 있습니다. 점심(금학칼국수)과 이른 저녁(뼈대있는짬뽕) 사이의 시간 간격을 메우며 치악산 자락 뷰를 보며 휴식하기에 최적입니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 천연발효종 건강빵과 다양한 케이크, 넓은 주차장과 쾌적한 단체석</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/베이커리궁,37.3452,127.9942" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. 뼈대있는짬뽕 -->
+            <div class="place-card" onclick="focusDayMarker(2, 5)">
+                <div>
+                    <div class="place-card-header">
+                        <div class="place-name"><span class="step-num">6</span> 뼈대있는짬뽕</div>
+                        <span class="place-tag tag-food">이른 저녁 식사</span>
+                    </div>
+                    <div class="place-address">📍 강원 원주시 삼광1길 10</div>
+                    <p class="place-desc">원주에 위치한 이색 중식당으로, 큼직한 돼지 등뼈가 통째로 올라간 진한 국물의 짬뽕으로 유명합니다. 강릉에서 여수로 내려가는 길목(영동고속도로 → 중앙/중부내륙/순천완주고속도로 연계)에 위치해 있어 복귀 전 든든하게 배를 채우기 좋습니다.</p>
+                    <ul class="place-meta">
+                        <li><strong>특징:</strong> 브레이크타임 없이 10:00 ~ 20:30 연속 영업하여 오후 4시 반경 이른 저녁 식사가 가능</li>
+                        <li><strong>동선 효과:</strong> 원주에서 오후 5시 30분에 출발하면 휴게소를 들르더라도 여수에 밤 9시 30분~10시경 안전하게 도착할 수 있습니다.</li>
+                    </ul>
+                </div>
+                <div class="map-action-row" onclick="event.stopPropagation();">
+                    <a class="ext-map-btn" href="https://map.kakao.com/link/map/뼈대있는짬뽕,37.3496,127.9658" target="_blank" rel="noopener">
+                        <span class="badge-icon">K</span> 카카오맵 길찾기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    const daysData = [
+        {
+            containerId: 'map-day1',
+            color: '#dc2626',
+            locations: [
+                { step: 1, name: "산촌생등심 (양양)", time: "18:30 저녁 식사", addr: "강원 양양군 강현면 안골로 54", lat: 38.1472, lng: 128.6042 },
+                { step: 2, name: "속초 숙소 권역 (청초호/해변)", time: "20:30 체크인 및 휴식", addr: "강원 속초시 청초호반로 일대", lat: 38.1960, lng: 128.5865 }
+            ]
+        },
+        {
+            containerId: 'map-day2',
+            color: '#2563eb',
+            locations: [
+                { step: 1, name: "춘선네", time: "08:30 아침 식사", addr: "강원 속초시 청초호반로 230", lat: 38.2014, lng: 128.5776 },
+                { step: 2, name: "바다정원", time: "10:00 오션뷰 베이커리 카페", addr: "강원 고성군 토성면 버리깨길 23", lat: 38.2485, lng: 128.5621 },
+                { step: 3, name: "산북막국수", time: "12:30 점심 식사", addr: "강원 고성군 거진읍 산북길 16", lat: 38.4418, lng: 128.4426 },
+                { step: 4, name: "봉브레드", time: "15:00 인기 빵집 포장", addr: "강원 속초시 동해대로 4344-1", lat: 38.2158, lng: 128.5752 },
+                { step: 5, name: "보사노바 커피로스터스 속초점", time: "15:30 해변 카페 티타임", addr: "강원 속초시 해오름로 161", lat: 38.1912, lng: 128.6018 },
+                { step: 6, name: "아하거기포차", time: "18:30 저녁 만찬", addr: "강원 속초시 동해대로 4162-9", lat: 38.1982, lng: 128.5878 }
+            ]
+        },
+        {
+            containerId: 'map-day3',
+            color: '#059669',
+            locations: [
+                { step: 1, name: "테라로사 경포호수점", time: "09:50 모닝 커피", addr: "강원 강릉시 난설헌로 145", lat: 37.7915, lng: 128.9082 },
+                { step: 2, name: "금학칼국수", time: "11:10 점심 식사", addr: "강원 강릉시 대학길 12-6", lat: 37.7538, lng: 128.8975 },
+                { step: 3, name: "강릉중앙시장", time: "12:10 시장 투어 · 커피콩빵", addr: "강원 강릉시 금성로 21", lat: 37.7534, lng: 128.8986 },
+                { step: 4, name: "감자유원지", time: "12:40 디저트 · 굿즈 투어", addr: "강원 강릉시 경강로2115번길 7", lat: 37.7544, lng: 128.8992 },
+                { step: 5, name: "베이커리궁 (원주)", time: "15:20 베이커리 카페 휴식", addr: "강원 원주시 행구로 307", lat: 37.3452, lng: 127.9942 },
+                { step: 6, name: "뼈대있는짬뽕 (원주)", time: "16:30 이른 저녁 식사", addr: "강원 원주시 삼광1길 10", lat: 37.3496, lng: 127.9658 }
+            ]
+        }
+    ];
+
+    const mapInstances = [];
+
+    function initKakaoMaps() {
+        daysData.forEach((day, dIdx) => {
+            const container = document.getElementById(day.containerId);
+            container.innerHTML = '';
+            
+            const map = new kakao.maps.Map(container, {
+                center: new kakao.maps.LatLng(day.locations[0].lat, day.locations[0].lng),
+                level: 7
+            });
+
+            const bounds = new kakao.maps.LatLngBounds();
+            const path = [];
+            const markers = [];
+
+            day.locations.forEach(loc => {
+                const pos = new kakao.maps.LatLng(loc.lat, loc.lng);
+                bounds.extend(pos);
+                path.push(pos);
+
+                const content = document.createElement('div');
+                content.style.cssText = 'display:flex; flex-direction:column; align-items:center; transform:translateY(-100%); cursor:pointer;';
+                
+                const label = document.createElement('div');
+                label.className = 'pin-label-tooltip';
+                label.style.marginBottom = '4px';
+                label.innerText = `${loc.step}. ${loc.name}`;
+                content.appendChild(label);
+
+                const pin = document.createElement('div');
+                pin.className = 'custom-pin';
+                pin.style.background = day.color;
+                pin.innerHTML = `<span>${loc.step}</span>`;
+                content.appendChild(pin);
+
+                const customOverlay = new kakao.maps.CustomOverlay({
+                    position: pos,
+                    content: content,
+                    yAnchor: 1
+                });
+                customOverlay.setMap(map);
+
+                content.addEventListener('click', () => {
+                    map.setCenter(pos);
+                    map.setLevel(3, { animate: true });
+                });
+
+                markers.push({ pos, loc });
+            });
+
+            if (path.length > 1) {
+                const polyline = new kakao.maps.Polyline({
+                    path: path,
+                    strokeWeight: 4,
+                    strokeColor: day.color,
+                    strokeOpacity: 0.85,
+                    strokeStyle: 'shortdash'
+                });
+                polyline.setMap(map);
+            }
+
+            map.setBounds(bounds, 50, 50, 50, 50);
+            mapInstances.push({ map, markers, locations: day.locations });
+        });
+    }
+
+    function resetDayMap(dayIdx) {
+        const inst = mapInstances[dayIdx];
+        if (!inst) return;
+        zoomDaySubRegion(dayIdx, inst.locations.map((_, i) => i));
+    }
+
+    function zoomDaySubRegion(dayIdx, indices) {
+        const inst = mapInstances[dayIdx];
+        if (!inst) return;
+        const bounds = new kakao.maps.LatLngBounds();
+        indices.forEach(i => {
+            const l = inst.locations[i];
+            bounds.extend(new kakao.maps.LatLng(l.lat, l.lng));
+        });
+        inst.map.setBounds(bounds, 50, 50, 50, 50);
+    }
+
+    function focusDayMarker(dayIdx, markerIdx) {
+        const inst = mapInstances[dayIdx];
+        if (!inst) return;
+        const m = inst.markers[markerIdx];
+        inst.map.setCenter(m.pos);
+        inst.map.setLevel(3, { animate: true });
+    }
+
+    kakao.maps.load(() => {
+        initKakaoMaps();
+    });
+</script>
+
+</body>
+</html>
