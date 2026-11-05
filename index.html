@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>강원도 워크숍 일정 보고 (11/24~11/26)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg:#F4F7F8; --surface:#FFFFFF; --ink:#14262F; --muted:#5A6B74; --line:#D5DFE3;
+  --sea:#0F6A8B; --d1:#0F6A8B; --d2:#2E7D5B; --d3:#B4552D;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E171C; --surface:#152229; --ink:#E6EEF1; --muted:#9AAEB7; --line:#2A3B44;
+    --sea:#5BB3D3; --d1:#2F8FB3; --d2:#3E9A72; --d3:#C9673D;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:16px; line-height:1.65; word-break:keep-all;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.wrap{max-width:1100px; margin:0 auto; padding:0 20px}
+header{padding:56px 0 8px}
+h1{font-size:clamp(30px,5vw,48px); line-height:1.15; margin:0 0 14px; letter-spacing:-0.025em; font-weight:800}
+.lede{color:var(--muted); max-width:64ch; margin:0; font-size:17px}
+dl.facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin:32px 0 0; border-top:2px solid var(--ink)}
+dl.facts div{padding:14px 16px 14px 0; border-bottom:1px solid var(--line)}
+dt{font-size:13px; color:var(--muted)}
+dd{margin:2px 0 0; font-weight:600}
+section{padding:44px 0; border-bottom:1px solid var(--line)}
+h2{font-size:24px; margin:0 0 6px; letter-spacing:-0.015em}
+.sub{color:var(--muted); margin:0 0 20px; max-width:70ch}
+.tabs{display:flex; gap:8px; margin:0 0 20px; flex-wrap:wrap}
+.tab{
+  font:inherit; font-weight:700; cursor:pointer;
+  border:2px solid var(--c); background:transparent; color:var(--ink);
+  padding:9px 18px; border-radius:999px;
+}
+.tab[aria-selected="true"]{background:var(--c); color:#fff}
+.tab:focus-visible, a:focus-visible, .stop:focus-visible{outline:3px solid var(--sea); outline-offset:3px}
+.day{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:28px; align-items:start}
+@media (max-width:840px){.day{grid-template-columns:1fr}}
+.mapbox{position:sticky; top:16px}
+#map{width:100%; height:540px; border-radius:14px; border:1px solid var(--line); background:var(--surface); overflow:hidden}
+@media (max-width:840px){.mapbox{position:relative; top:0} #map{height:380px}}
+.maphelp{font-size:13px; color:var(--muted); margin:8px 2px 0}
+.mapmsg{display:flex; align-items:center; justify-content:center; height:100%; padding:28px; text-align:center; color:var(--muted); font-size:14px}
+.daynote{margin:0 0 6px; font-weight:600}
+ol.stops{list-style:none; margin:0; padding:0}
+.stop{display:grid; grid-template-columns:38px 1fr; gap:12px; padding:14px 6px 14px 0; border-bottom:1px solid var(--line); cursor:pointer; border-radius:6px}
+.stop:hover .name{text-decoration:underline; text-underline-offset:3px}
+.stop.nopin{cursor:default}
+.stop.nopin:hover .name{text-decoration:none}
+.num{width:30px; height:30px; border-radius:50%; background:var(--c); color:#fff; display:grid; place-items:center; font-weight:700; font-size:14px; margin-top:2px}
+.num.off{background:transparent; border:2px dashed var(--c); color:var(--c)}
+.time{font-variant-numeric:tabular-nums; color:var(--muted); font-size:14px}
+.name{font-weight:700; font-size:17px; line-height:1.4}
+.what{font-size:14px; color:var(--muted)}
+.links{display:flex; gap:14px; margin-top:6px; font-size:14px; flex-wrap:wrap}
+a{color:var(--sea); text-underline-offset:3px}
+.leg{font-size:13px; color:var(--muted); padding:6px 0 6px 50px; border-bottom:1px solid var(--line)}
+.tablewrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:15px; min-width:560px}
+th,td{text-align:left; padding:11px 14px 11px 0; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-size:13px; color:var(--muted); font-weight:600; border-bottom:2px solid var(--ink)}
+ul.check{padding-left:20px; margin:0}
+ul.check li{margin:8px 0}
+footer{padding:28px 0 56px; color:var(--muted); font-size:13px}
+footer ul{padding-left:18px}
+.pin{
+  width:30px; height:30px; border-radius:50%; color:#fff; font:700 13px Pretendard,sans-serif;
+  display:grid; place-items:center; border:2px solid #fff; box-shadow:0 1px 5px rgba(0,0,0,.4); cursor:pointer;
+}
+.pinlabel{
+  margin-top:4px; background:#fff; color:#14262F; font:600 12px Pretendard,sans-serif;
+  padding:2px 7px; border-radius:6px; white-space:nowrap; box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>강원도 워크숍 일정 보고</h1>
+  <p class="lede">8명이 11월 24일(화) 저녁 양양에서 시작해 11월 26일(목) 19시 전후 여수에 도착하는 2박 3일 일정입니다. 숙소를 이틀 모두 속초 청초호 인근으로 잡아, 고성에서 강릉·원주를 거쳐 여수까지 되돌아가는 구간 없이 이동합니다.</p>
+  <dl class="facts">
+    <div><dt>인원</dt><dd>8명</dd></div>
+    <div><dt>기간</dt><dd>11/24(화) ~ 11/26(목)</dd></div>
+    <div><dt>이동</dt><dd>11인승 승합차 1대, 운전자 2명 이상</dd></div>
+    <div><dt>숙소</dt><dd>속초 청초호 인근 2박</dd></div>
+    <div><dt>여수 도착 예상</dt><dd>11/26 19:00 전후</dd></div>
+  </dl>
+</header>
+
+<section id="schedule" aria-labelledby="schedule-h">
+  <h2 id="schedule-h">날짜별 일정과 지도</h2>
+  <p class="sub">장소를 누르면 지도가 그 위치로 확대됩니다. 이동 시간은 일반 교통 기준 추정치입니다.</p>
+  <div class="tabs" role="tablist" aria-label="날짜 선택" id="tabs"></div>
+  <div class="day">
+    <div class="mapbox">
+      <div id="map" role="region" aria-label="일정 지도"><div class="mapmsg">지도를 불러오는 중입니다.</div></div>
+      <p class="maphelp" id="maphelp">위치는 카카오 지도의 주소·장소 검색 결과로 표시됩니다.</p>
+    </div>
+    <div>
+      <p class="daynote" id="daynote"></p>
+      <ol class="stops" id="stops"></ol>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="change-h">
+  <h2 id="change-h">원안 대비 동선 조정</h2>
+  <p class="sub">원주 뼈대있는짬뽕을 25일 점심에서 26일 귀갓길 점심으로 옮겼습니다. 원안대로면 25일에 속초→원주→속초 왕복이 4시간 이상 생기고, 원주는 강릉에서 여수로 내려가는 길목에 있습니다.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>장소</th><th>원안</th><th>조정안</th><th>사유</th></tr></thead>
+    <tbody>
+      <tr><td>뼈대있는짬뽕(원주)</td><td>25일 점심</td><td>26일 점심</td><td>귀갓길 경유, 왕복 4시간 이상 절감</td></tr>
+      <tr><td>산북막국수(고성 거진)</td><td>미정</td><td>25일 점심</td><td>속초 북쪽이라 25일 오전 동선에 맞음</td></tr>
+      <tr><td>강릉 중앙시장·금학칼국수·감자유원지</td><td>미정</td><td>26일 오전</td><td>세 곳이 월화거리 주변에 모여 있어 한 번에 방문</td></tr>
+      <tr><td>산촌생등심·춘선네·아하거기포차</td><td>원안 유지</td><td>원안 유지</td><td>변경 없음</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="sub" style="margin-top:16px">뼈대있는짬뽕은 평일 11:00~15:00 영업, 매주 월요일 휴무, 재료 소진 시 조기 마감입니다. 26일은 목요일이라 영업일이며 13시 전 도착을 목표로 잡았습니다.</p>
+</section>
+
+<section aria-labelledby="bakery-h">
+  <h2 id="bakery-h">빵집·카페</h2>
+  <p class="sub">모두 식당 사이 이동 경로 위에 있어 따로 돌아가는 시간이 들지 않습니다.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>날짜</th><th>장소</th><th>특징</th><th>지도</th></tr></thead>
+    <tbody>
+      <tr><td>11/24</td><td>바다뷰제빵소</td><td>후진항 바다 전망 베이커리 카페, 평일 10:00~20:00</td><td><a href="https://map.kakao.com/link/search/양양%20바다뷰제빵소" target="_blank" rel="noopener">카카오맵</a></td></tr>
+      <tr><td>11/25</td><td>봉브레드</td><td>마늘빵 대표 빵집, 주차 가능</td><td><a href="https://map.kakao.com/link/search/속초%20봉브레드" target="_blank" rel="noopener">카카오맵</a></td></tr>
+      <tr><td>11/25</td><td>칠성조선소</td><td>옛 조선소를 개조한 청초호 카페</td><td><a href="https://map.kakao.com/link/search/속초%20칠성조선소" target="_blank" rel="noopener">카카오맵</a></td></tr>
+      <tr><td>11/26</td><td>감자유원지</td><td>1층 카페·델리, 2층 키친, 지하 로컬스토어</td><td><a href="https://map.kakao.com/link/search/강릉%20감자유원지" target="_blank" rel="noopener">카카오맵</a></td></tr>
+      <tr><td>11/26</td><td>강릉이래요</td><td>중앙시장 안 감자빵 전문점, 선물 포장</td><td><a href="https://map.kakao.com/link/search/강릉이래요%20중앙시장" target="_blank" rel="noopener">카카오맵</a></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="sub" style="margin-top:16px">강릉이래요는 주차가 어려워 한 명이 내려 사 오는 방식이 편합니다.</p>
+</section>
+
+<section aria-labelledby="check-h">
+  <h2 id="check-h">출발 전 확인 사항</h2>
+  <p class="sub">8인 단체 예약과, 영업시간을 확인하지 못한 식당의 전화 확인이 가장 급합니다.</p>
+  <ul class="check">
+    <li>산촌생등심 11/24 18:30, 8인 예약</li>
+    <li>춘선네 11/25 아침 영업 시작 시간 확인(08:30 가능 여부)</li>
+    <li>산북막국수 영업시간·휴무일 확인, 11/25 11:30 8인 좌석 문의</li>
+    <li>아하거기포차 11/25 18:30, 8인 예약</li>
+    <li>뼈대있는짬뽕 11/26 12:50, 8인 예약(033-734-8252), 1인 1메뉴 기준</li>
+    <li>속초 청초호 인근 8인 숙소 2박 예약, 회의 공간 여부 확인</li>
+    <li>11인승 승합차 확보, 운전자 2명 이상 지정, 저녁 대리운전 번호 준비</li>
+  </ul>
+  <p class="sub" style="margin-top:16px">날씨나 귀경 교통이 나쁘면 26일 감자유원지 일정을 빼서 30~40분을 확보할 수 있습니다.</p>
+</section>
+
+<footer>
+  <p>참고한 자료</p>
+  <ul>
+    <li><a href="https://www.ktriptips.com/kor/food/2892283" target="_blank" rel="noopener">뼈대있는짬뽕 영업 정보</a></li>
+    <li><a href="https://www.ktriptips.com/kor/food/2839872" target="_blank" rel="noopener">바다뷰제빵소 영업 정보</a></li>
+    <li><a href="https://polle.com/place/5vsKmp/%EB%B4%89%20%EB%B8%8C%EB%A0%88%EB%93%9C" target="_blank" rel="noopener">봉브레드 소개</a></li>
+    <li><a href="https://heypop.kr/n/59692/" target="_blank" rel="noopener">감자유원지 소개</a></li>
+    <li><a href="https://www.siksinhot.com/P/253927" target="_blank" rel="noopener">금학칼국수 소개</a></li>
+  </ul>
+</footer>
+
+</div>
+
+<script>
+const KAKAO_APP_KEY = '2e1a3add3f45920f671040a62041d38c';
+
+/* addr: 도로명 주소로 위치를 찾고, 실패하면 kw(장소 검색어)로 찾습니다.
+   pin:false 인 항목은 목록에만 나오고 지도에는 표시하지 않습니다. */
+const DAYS = [
+  { id:'day1', tab:'1일차 · 11/24(화)', color:'--d1',
+    note:'여수 출발 → 양양 → 속초. 18:30 산촌생등심 도착이 기준입니다.',
+    stops:[
+      { time:'10:30', name:'여수 출발', what:'휴게소 점심 포함 약 6시간 30분', pin:false },
+      { time:'17:00', name:'바다뷰제빵소', what:'커피·빵', addr:'강원 양양군 강현면 동해대로 3296', kw:'양양 바다뷰제빵소', leg:'산촌생등심까지 약 10분' },
+      { time:'18:30', name:'산촌생등심', what:'저녁 식사 · 8인 예약 필요', addr:'강원 양양군 강현면 안골로 54', kw:'양양 산촌생등심', leg:'숙소까지 약 20분' },
+      { time:'21:00', name:'속초 숙소 (청초호 인근)', what:'체크인 · 숙소 확정 후 위치 수정', kw:'속초 청초호' }
+    ]},
+  { id:'day2', tab:'2일차 · 11/25(수)', color:'--d2',
+    note:'오전에만 고성 거진까지 다녀오고, 오후 일정은 숙소 반경 10분 안에서 진행합니다.',
+    stops:[
+      { time:'08:30', name:'춘선네', what:'아침 식사', addr:'강원 속초시 청초호반로 230', kw:'속초 춘선네' },
+      { time:'10:00', name:'봉브레드', what:'빵 구매 · 마늘빵', addr:'강원 속초시 동해대로 4344-1', kw:'속초 봉브레드', leg:'거진까지 약 30분' },
+      { time:'11:30', name:'산북막국수', what:'점심 식사', addr:'강원 고성군 거진읍 산북길 16', kw:'고성 산북막국수', leg:'숙소까지 약 40분' },
+      { time:'13:30', name:'숙소 휴식 · 15:00 워크숍 회의', what:'숙소 회의 공간 또는 세미나실', kw:'속초 청초호' },
+      { time:'17:00', name:'칠성조선소 일대', what:'산책·커피', kw:'속초 칠성조선소' },
+      { time:'18:30', name:'아하거기포차', what:'저녁 식사 · 8인 예약 필요', addr:'강원 속초시 동해대로 4162-9', kw:'속초 아하거기포차' }
+    ]},
+  { id:'day3', tab:'3일차 · 11/26(목)', color:'--d3',
+    note:'강릉 세 곳은 차를 한 번만 세우고 걸어서 돌고, 원주에서 늦은 점심 후 여수로 내려갑니다.',
+    stops:[
+      { time:'08:00', name:'속초 숙소 출발', what:'체크아웃', kw:'속초 청초호', leg:'강릉까지 약 1시간 10분' },
+      { time:'09:20', name:'강릉 중앙시장', what:'시장 구경·기념품·감자빵', addr:'강원 강릉시 금성로 21', kw:'강릉중앙시장', leg:'도보 이동' },
+      { time:'10:00', name:'감자유원지', what:'커피·감자 디저트', addr:'강원 강릉시 경강로2115번길 7', kw:'강릉 감자유원지', leg:'도보 이동' },
+      { time:'10:50', name:'금학칼국수', what:'이른 점심 · 장칼국수(가볍게 나눠 주문)', addr:'강원 강릉시 대학길 12-6', kw:'강릉 금학칼국수', leg:'원주까지 약 1시간 20분' },
+      { time:'12:50', name:'뼈대있는짬뽕', what:'점심 · 평일 15:00 마감 · 주차장 없음', addr:'강원 원주시 삼광1길 10', kw:'원주 뼈대있는짬뽕', leg:'14:00 출발 · 여수까지 약 4시간 30분(휴게소 포함)' },
+      { time:'19:00', name:'여수 도착', what:'마감 23:00 대비 약 4시간 여유', pin:false }
+    ]}
+];
+
+const $ = id => document.getElementById(id);
+const cssColor = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let current = DAYS[0], map = null, drawn = [], ready = false;
+
+function kakaoLink(s){
+  if (s.pos) return {
+    view:`https://map.kakao.com/link/map/${encodeURIComponent(s.name)},${s.pos.lat},${s.pos.lng}`,
+    route:`https://map.kakao.com/link/to/${encodeURIComponent(s.name)},${s.pos.lat},${s.pos.lng}`
+  };
+  const q = encodeURIComponent(s.kw || s.name);
+  return { view:`https://map.kakao.com/link/search/${q}`, route:null };
+}
+
+function renderTabs(){
+  $('tabs').innerHTML = '';
+  DAYS.forEach(d => {
+    const b = document.createElement('button');
+    b.className = 'tab'; b.type = 'button'; b.role = 'tab';
+    b.style.setProperty('--c', `var(${d.color})`);
+    b.textContent = d.tab;
+    b.setAttribute('aria-selected', d === current ? 'true' : 'false');
+    b.addEventListener('click', () => { location.hash = d.id; });
+    $('tabs').appendChild(b);
+  });
+}
+
+function renderList(){
+  const d = current, ol = $('stops');
+  $('daynote').textContent = d.note;
+  ol.innerHTML = '';
+  let n = 0;
+  d.stops.forEach(s => {
+    const li = document.createElement('li');
+    const pinned = s.pin !== false;
+    if (pinned) n++;
+    li.className = 'stop' + (pinned ? '' : ' nopin');
+    li.style.setProperty('--c', `var(${d.color})`);
+    const k = kakaoLink(s);
+    li.innerHTML = `
+      <div class="num ${pinned ? '' : 'off'}">${pinned ? n : '·'}</div>
+      <div>
+        <div class="time">${s.time}</div>
+        <div class="name">${s.name}</div>
+        <div class="what">${s.what}</div>
+        ${pinned ? `<div class="links">
+          <a href="${k.view}" target="_blank" rel="noopener">카카오맵에서 보기</a>
+          ${k.route ? `<a href="${k.route}" target="_blank" rel="noopener">길찾기</a>` : ''}
+        </div>` : ''}
+      </div>`;
+    if (pinned){
+      li.tabIndex = 0;
+      const go = e => { if (e.target.closest('a')) return; focusStop(s); };
+      li.addEventListener('click', go);
+      li.addEventListener('keydown', e => { if (e.key === 'Enter') go(e); });
+    }
+    ol.appendChild(li);
+    if (s.leg){
+      const leg = document.createElement('li');
+      leg.className = 'leg'; leg.textContent = s.leg;
+      ol.appendChild(leg);
+    }
+  });
+}
+
+function focusStop(s){
+  if (!map || !s.pos) return;
+  map.setLevel(4);
+  map.panTo(new kakao.maps.LatLng(s.pos.lat, s.pos.lng));
+  if (window.matchMedia('(max-width:840px)').matches) $('map').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderMap(){
+  if (!map) return;
+  drawn.forEach(o => o.setMap(null)); drawn = [];
+  const color = cssColor(current.color);
+  const bounds = new kakao.maps.LatLngBounds(), path = [];
+  let n = 0;
+  current.stops.forEach(s => {
+    if (s.pin === false) return;
+    n++;
+    if (!s.pos) return;
+    const ll = new kakao.maps.LatLng(s.pos.lat, s.pos.lng);
+    path.push(ll); bounds.extend(ll);
+    const el = document.createElement('div');
+    el.style.cssText = 'display:flex;flex-direction:column;align-items:center';
+    el.innerHTML = `<div class="pin" style="background:${color}">${n}</div><div class="pinlabel">${s.name}</div>`;
+    el.addEventListener('click', () => focusStop(s));
+    const ov = new kakao.maps.CustomOverlay({ position:ll, content:el, yAnchor:0.3, zIndex:n });
+    ov.setMap(map); drawn.push(ov);
+  });
+  if (path.length > 1){
+    const line = new kakao.maps.Polyline({ path, strokeWeight:4, strokeColor:color, strokeOpacity:0.85, strokeStyle:'solid' });
+    line.setMap(map); drawn.push(line);
+  }
+  map.relayout();
+  if (path.length) map.setBounds(bounds, 60, 60, 60, 60);
+  const missing = current.stops.filter(s => s.pin !== false && !s.pos).map(s => s.name);
+  $('maphelp').textContent = missing.length
+    ? `위치를 찾지 못한 장소: ${missing.join(', ')}. 목록의 카카오맵 링크로 확인하세요.`
+    : '위치는 카카오 지도의 주소·장소 검색 결과로 표시됩니다.';
+}
+
+function show(){
+  const id = location.hash.replace('#', '');
+  current = DAYS.find(d => d.id === id) || DAYS[0];
+  renderTabs(); renderList(); renderMap();
+}
+
+function locate(s, geocoder, places){
+  const OK = kakao.maps.services.Status.OK;
+  const byKeyword = res => places.keywordSearch(s.kw || s.name, (r, st) =>
+    res(st === OK ? { lat:+r[0].y, lng:+r[0].x } : null));
+  return new Promise(res => {
+    if (s.addr) geocoder.addressSearch(s.addr, (r, st) => st === OK ? res({ lat:+r[0].y, lng:+r[0].x }) : byKeyword(res));
+    else byKeyword(res);
+  });
+}
+
+function mapFailed(){
+  if (ready) return;
+  $('map').innerHTML = '<div class="mapmsg">카카오 지도를 불러오지 못했습니다. 카카오 개발자 콘솔에서 이 사이트 도메인(https://jhjphe.github.io)이 Web 플랫폼에 등록돼 있는지, 카카오맵 사용 설정이 켜져 있는지 확인하세요. 아래 목록의 카카오맵 링크는 그대로 사용할 수 있습니다.</div>';
+}
+
+function initKakao(){
+  kakao.maps.load(async () => {
+    ready = true;
+    $('map').innerHTML = '';
+    map = new kakao.maps.Map($('map'), { center:new kakao.maps.LatLng(37.9, 128.6), level:9 });
+    map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+    const geocoder = new kakao.maps.services.Geocoder(), places = new kakao.maps.services.Places();
+    const all = DAYS.flatMap(d => d.stops).filter(s => s.pin !== false);
+    for (const s of all) s.pos = await locate(s, geocoder, places);
+    renderList(); renderMap();
+  });
+}
+
+window.addEventListener('hashchange', show);
+show();
+
+const sdk = document.createElement('script');
+sdk.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_APP_KEY}&libraries=services&autoload=false`;
+sdk.onload = () => (window.kakao && kakao.maps) ? initKakao() : mapFailed();
+sdk.onerror = mapFailed;
+document.head.appendChild(sdk);
+setTimeout(mapFailed, 10000);
+</script>
+</body>
+</html>
